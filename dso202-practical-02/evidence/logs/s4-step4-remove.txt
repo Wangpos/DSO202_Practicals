@@ -1,0 +1,8 @@
+$ kubectl delete -f manifests/08-deployment-shared-pvc.yaml
+persistentvolumeclaim "shared-data" deleted from dso202-practical-02 namespace
+deployment.apps "shared-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl get pvc
+NAME             STATUS   VOLUME          CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pvc-web-static   Bound    pv-web-static   1Gi        RWO            manual         <unset>                 94s
+

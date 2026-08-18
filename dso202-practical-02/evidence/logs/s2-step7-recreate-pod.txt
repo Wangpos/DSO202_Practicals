@@ -1,0 +1,13 @@
+$ kubectl delete pod static-writer
+pod "static-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl apply -f manifests/05-pod-static-writer.yaml
+pod/static-writer created
+
+$ kubectl wait --for=condition=Ready pod/static-writer --timeout=90s
+pod/static-writer condition met
+
+$ kubectl exec static-writer -- cat /data/ledger.txt
+2026-11-10T15:46:32Z start pod=static-writer node=worker-node-1
+2026-11-10T15:46:45Z start pod=static-writer node=worker-node-1
+

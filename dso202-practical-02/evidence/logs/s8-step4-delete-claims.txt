@@ -1,0 +1,13 @@
+$ kubectl delete pvc --all
+persistentvolumeclaim "content-webnote-0" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "content-webnote-1" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "content-webnote-2" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "content-webnote-3" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "data-postgres-0" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "pvc-web-static" deleted from dso202-practical-02 namespace
+
+$ sleep 5; kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS     CLAIM                                 STORAGECLASS    VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static                              1Gi        RWO            Retain           Released   dso202-practical-02/pvc-web-static    manual          <unset>                          18m
+pvc-2b1ac828-e445-4e0f-aed8-47baf947efea   2Gi        RWO            Retain           Released   dso202-practical-02/data-postgres-0   dso202-retain   <unset>                          10m
+

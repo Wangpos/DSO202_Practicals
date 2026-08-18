@@ -1,0 +1,58 @@
+### Step 1. Three replicas, one claim
+$ kubectl apply -f manifests/08-deployment-shared-pvc.yaml
+persistentvolumeclaim/shared-data created
+deployment.apps/shared-writer created
+
+$ kubectl rollout status deployment/shared-writer --timeout=180s
+Waiting for deployment "shared-writer" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "shared-writer" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "shared-writer" rollout to finish: 2 of 3 updated replicas are available...
+deployment "shared-writer" successfully rolled out
+
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+NAME                             NODE
+shared-writer-6f4b987c7b-4r5vt   worker-node-2
+shared-writer-6f4b987c7b-n6228   worker-node-2
+shared-writer-6f4b987c7b-p95kv   worker-node-2
+
+### Step 2. Read the file all three replicas mounted
+$ kubectl exec deploy/shared-writer -- cat /data/visitors.log
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-p95kv node=worker-node-2
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-n6228 node=worker-node-2
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-4r5vt node=worker-node-2
+
+### Step 3. Delete the replicas and observe the identity problem
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name
+NAME
+shared-writer-6f4b987c7b-4r5vt
+shared-writer-6f4b987c7b-n6228
+shared-writer-6f4b987c7b-p95kv
+
+$ kubectl delete pod -l app=shared-writer --field-selector status.phase=Running
+pod "shared-writer-6f4b987c7b-4r5vt" deleted from dso202-practical-02 namespace
+pod "shared-writer-6f4b987c7b-n6228" deleted from dso202-practical-02 namespace
+pod "shared-writer-6f4b987c7b-p95kv" deleted from dso202-practical-02 namespace
+
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+NAME                             NODE
+shared-writer-6f4b987c7b-cqgw2   worker-node-2
+shared-writer-6f4b987c7b-g7mvb   worker-node-2
+shared-writer-6f4b987c7b-mbz77   worker-node-2
+
+$ kubectl exec deploy/shared-writer -- cat /data/visitors.log
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-p95kv node=worker-node-2
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-n6228 node=worker-node-2
+2026-11-02T14:39:34Z pod=shared-writer-6f4b987c7b-4r5vt node=worker-node-2
+2026-11-02T14:39:35Z pod=shared-writer-6f4b987c7b-g7mvb node=worker-node-2
+2026-11-02T14:39:35Z pod=shared-writer-6f4b987c7b-cqgw2 node=worker-node-2
+2026-11-02T14:39:35Z pod=shared-writer-6f4b987c7b-mbz77 node=worker-node-2
+
+### Step 4. Remove the experiment
+$ kubectl delete -f manifests/08-deployment-shared-pvc.yaml
+persistentvolumeclaim "shared-data" deleted from dso202-practical-02 namespace
+deployment.apps "shared-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl get pvc
+NAME             STATUS   VOLUME          CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pvc-web-static   Bound    pv-web-static   1Gi        RWO            manual         <unset>                 2m36s
+

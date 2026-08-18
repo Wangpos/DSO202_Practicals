@@ -1,0 +1,22 @@
+$ grep -n -A2 'persistentVolumeClaimRetentionPolicy:' extensions/ext1-statefulset-whenscaled-delete.yaml
+34:  persistentVolumeClaimRetentionPolicy:
+35-    whenDeleted: Retain
+36-    whenScaled: Delete
+
+$ kubectl apply -f extensions/ext1-statefulset-whenscaled-delete.yaml
+statefulset.apps/webnote-ext1 created
+
+$ kubectl rollout status statefulset/webnote-ext1 --timeout=300s
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl get pvc -l app=webnote-ext1
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext1-0   Bound    pvc-116a8c38-7946-476c-a83c-f4f05833e56b   100Mi      RWO            standard       <unset>                 11s
+content-webnote-ext1-1   Bound    pvc-cae7f0d4-d8de-4d87-9aea-966ee77056ba   100Mi      RWO            standard       <unset>                 8s
+content-webnote-ext1-2   Bound    pvc-055ba8b9-a7e7-49af-8bc5-df83841d0aea   100Mi      RWO            standard       <unset>                 3s
+

@@ -1,0 +1,11 @@
+$ kubectl apply -f manifests/14-statefulset-postgres.yaml
+statefulset.apps/postgres created
+
+$ kubectl get pods -l app=postgres -w
+NAME         READY   STATUS    RESTARTS   AGE
+postgres-0   0/1     Pending   0          0s
+postgres-0   0/1     Pending   0          3s
+postgres-0   0/1     ContainerCreating   0          3s
+postgres-0   0/1     ContainerCreating   0          3s
+^C
+

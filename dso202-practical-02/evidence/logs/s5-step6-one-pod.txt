@@ -1,0 +1,5 @@
+$ kubectl exec client -- wget -qO- http://webnote-1.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-1</h2>
+created: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:49:32Z on worker-node-1
+

@@ -1,0 +1,244 @@
+$ kubectl diff -f manifests/ ; echo "exit code: $?"
+diff -u -N /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/apps.v1.Deployment.dso202-practical-02.shared-writer /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/apps.v1.Deployment.dso202-practical-02.shared-writer
+--- /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/apps.v1.Deployment.dso202-practical-02.shared-writer	2026-11-10 22:04:49
++++ /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/apps.v1.Deployment.dso202-practical-02.shared-writer	2026-11-10 22:04:49
+@@ -0,0 +1,81 @@
++apiVersion: apps/v1
++kind: Deployment
++metadata:
++  creationTimestamp: "2026-11-10T16:04:49Z"
++  generation: 1
++  labels:
++    app: shared-writer
++    dso202/managed-by: declarative
++    dso202/practical: "02"
++    tier: storage-demo
++  name: shared-writer
++  namespace: dso202-practical-02
++  uid: abbf5a6a-f957-493b-b8ed-bd80ce135248
++spec:
++  progressDeadlineSeconds: 600
++  replicas: 3
++  revisionHistoryLimit: 10
++  selector:
++    matchLabels:
++      app: shared-writer
++  strategy:
++    rollingUpdate:
++      maxSurge: 25%
++      maxUnavailable: 25%
++    type: RollingUpdate
++  template:
++    metadata:
++      labels:
++        app: shared-writer
++        dso202/managed-by: declarative
++        dso202/practical: "02"
++        tier: storage-demo
++    spec:
++      containers:
++      - args:
++        - |
++          set -eu
++          # Every replica appends to the SAME file on the SAME volume.
++          # Three processes, one set of data, no ownership. A database in
++          # this position corrupts its data files.
++          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) pod=${POD_NAME} node=${NODE_NAME}" >> /data/visitors.log
++          exec sleep infinity
++        command:
++        - /bin/sh
++        - -c
++        env:
++        - name: POD_NAME
++          valueFrom:
++            fieldRef:
++              apiVersion: v1
++              fieldPath: metadata.name
++        - name: NODE_NAME
++          valueFrom:
++            fieldRef:
++              apiVersion: v1
++              fieldPath: spec.nodeName
++        image: busybox:1.37
++        imagePullPolicy: IfNotPresent
++        name: writer
++        resources:
++          limits:
++            cpu: 100m
++            memory: 64Mi
++          requests:
++            cpu: 25m
++            memory: 32Mi
++        terminationMessagePath: /dev/termination-log
++        terminationMessagePolicy: File
++        volumeMounts:
++        - mountPath: /data
++          name: data
++      dnsPolicy: ClusterFirst
++      restartPolicy: Always
++      schedulerName: default-scheduler
++      securityContext: {}
++      terminationGracePeriodSeconds: 5
++      volumes:
++      - name: data
++        persistentVolumeClaim:
++          claimName: shared-data
++status: {}
+diff -u -N /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.PersistentVolumeClaim.dso202-practical-02.dynamic-data /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.PersistentVolumeClaim.dso202-practical-02.dynamic-data
+--- /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.PersistentVolumeClaim.dso202-practical-02.dynamic-data	2026-11-10 22:04:49
++++ /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.PersistentVolumeClaim.dso202-practical-02.dynamic-data	2026-11-10 22:04:49
+@@ -0,0 +1,24 @@
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  creationTimestamp: "2026-11-10T16:04:49Z"
++  finalizers:
++  - kubernetes.io/pvc-protection
++  labels:
++    app: dynamic-writer
++    dso202/managed-by: declarative
++    dso202/practical: "02"
++    tier: storage-demo
++  name: dynamic-data
++  namespace: dso202-practical-02
++  uid: 5be9fdac-9725-405c-bf46-63414440c28a
++spec:
++  accessModes:
++  - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: standard
++  volumeMode: Filesystem
++status:
++  phase: Pending
+diff -u -N /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.PersistentVolumeClaim.dso202-practical-02.shared-data /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.PersistentVolumeClaim.dso202-practical-02.shared-data
+--- /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.PersistentVolumeClaim.dso202-practical-02.shared-data	2026-11-10 22:04:49
++++ /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.PersistentVolumeClaim.dso202-practical-02.shared-data	2026-11-10 22:04:49
+@@ -0,0 +1,24 @@
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  creationTimestamp: "2026-11-10T16:04:49Z"
++  finalizers:
++  - kubernetes.io/pvc-protection
++  labels:
++    app: shared-writer
++    dso202/managed-by: declarative
++    dso202/practical: "02"
++    tier: storage-demo
++  name: shared-data
++  namespace: dso202-practical-02
++  uid: e1cae7b2-ffaa-4ee9-bd37-7383ac76eede
++spec:
++  accessModes:
++  - ReadWriteOnce
++  resources:
++    requests:
++      storage: 1Gi
++  storageClassName: standard
++  volumeMode: Filesystem
++status:
++  phase: Pending
+diff -u -N /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.Pod.dso202-practical-02.dynamic-writer /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.Pod.dso202-practical-02.dynamic-writer
+--- /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/LIVE-1103677932/v1.Pod.dso202-practical-02.dynamic-writer	2026-11-10 22:04:49
++++ /var/folders/3p/zctfkbg57v56ydwq4b1ws_vr0000gn/T/MERGED-3913757954/v1.Pod.dso202-practical-02.dynamic-writer	2026-11-10 22:04:49
+@@ -0,0 +1,96 @@
++apiVersion: v1
++kind: Pod
++metadata:
++  creationTimestamp: "2026-11-10T16:04:49Z"
++  generation: 1
++  labels:
++    app: dynamic-writer
++    dso202/managed-by: declarative
++    dso202/practical: "02"
++    tier: storage-demo
++  name: dynamic-writer
++  namespace: dso202-practical-02
++  uid: 91560cbb-fbf1-4541-916e-03c21b1a6db6
++spec:
++  containers:
++  - args:
++    - |
++      set -eu
++      echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) start pod=${POD_NAME} node=${NODE_NAME}" >> /data/ledger.txt
++      exec sleep infinity
++    command:
++    - /bin/sh
++    - -c
++    env:
++    - name: POD_NAME
++      valueFrom:
++        fieldRef:
++          apiVersion: v1
++          fieldPath: metadata.name
++    - name: NODE_NAME
++      valueFrom:
++        fieldRef:
++          apiVersion: v1
++          fieldPath: spec.nodeName
++    image: busybox:1.37
++    imagePullPolicy: IfNotPresent
++    name: writer
++    resources:
++      limits:
++        cpu: 100m
++        memory: 64Mi
++      requests:
++        cpu: 25m
++        memory: 32Mi
++    terminationMessagePath: /dev/termination-log
++    terminationMessagePolicy: File
++    volumeMounts:
++    - mountPath: /data
++      name: data
++    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
++      name: kube-api-access-lkp7f
++      readOnly: true
++  dnsPolicy: ClusterFirst
++  enableServiceLinks: true
++  preemptionPolicy: PreemptLowerPriority
++  priority: 0
++  restartPolicy: Always
++  schedulerName: default-scheduler
++  securityContext: {}
++  serviceAccount: default
++  serviceAccountName: default
++  terminationGracePeriodSeconds: 5
++  tolerations:
++  - effect: NoExecute
++    key: node.kubernetes.io/not-ready
++    operator: Exists
++    tolerationSeconds: 300
++  - effect: NoExecute
++    key: node.kubernetes.io/unreachable
++    operator: Exists
++    tolerationSeconds: 300
++  volumes:
++  - name: data
++    persistentVolumeClaim:
++      claimName: dynamic-data
++  - name: kube-api-access-lkp7f
++    projected:
++      defaultMode: 420
++      sources:
++      - serviceAccountToken:
++          expirationSeconds: 3607
++          path: token
++      - configMap:
++          items:
++          - key: ca.crt
++            path: ca.crt
++          name: kube-root-ca.crt
++      - downwardAPI:
++          items:
++          - fieldRef:
++              apiVersion: v1
++              fieldPath: metadata.namespace
++            path: namespace
++status:
++  phase: Pending
++  qosClass: Burstable
+exit code: 1
+

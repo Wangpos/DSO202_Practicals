@@ -1,0 +1,16 @@
+$ kubectl -n dso202-practical-02 delete -f manifests/14-statefulset-postgres.yaml
+statefulset.apps "postgres" deleted from dso202-practical-02 namespace
+
+$ kubectl config set-context --current --namespace=default
+Context "kind-dso202-p2" modified.
+
+$ kind delete cluster --name dso202-p2
+Deleting cluster "dso202-p2" ...
+Deleted nodes: ["dso202-p2-worker2" "dso202-p2-control-plane" "dso202-p2-worker"]
+
+$ kind get clusters
+No kind clusters found.
+
+$ docker ps --filter ancestor=kindest/node:v1.36.1
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+

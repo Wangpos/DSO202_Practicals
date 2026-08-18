@@ -1,0 +1,24 @@
+$ kind create cluster --config cluster/kind-cluster.yaml 2>&1 | tail -1
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+
+$ kubectl wait --for=condition=Ready nodes --all --timeout=180s
+node/control-plane condition met
+node/worker-node-1 condition met
+node/worker-node-2 condition met
+
+$ kubectl apply -f manifests/00-namespace.yaml -f manifests/01-quota-and-limits.yaml -f manifests/02-storageclass-retain.yaml
+namespace/dso202-practical-02 created
+resourcequota/dso202-p2-quota created
+limitrange/dso202-p2-limits created
+storageclass.storage.k8s.io/dso202-retain created
+
+$ kubectl apply -f manifests/12-secret-postgres.yaml -f manifests/13-service-postgres.yaml -f manifests/14-statefulset-postgres.yaml
+secret/postgres-credentials created
+service/postgres-headless created
+service/postgres created
+statefulset.apps/postgres created
+
+$ kubectl -n dso202-practical-02 rollout status statefulset/postgres --timeout=900s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+

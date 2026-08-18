@@ -1,0 +1,65 @@
+### 8.1 A claim that will not bind
+$ kubectl apply -f manifests/06-pvc-dynamic.yaml
+persistentvolumeclaim/dynamic-data created
+
+$ kubectl get pvc dynamic-data
+NAME           STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+dynamic-data   Pending                                      standard       <unset>                 0s
+
+$ kubectl describe pvc dynamic-data | tail -n 6
+VolumeMode:    Filesystem
+Used By:       <none>
+Events:
+  Type    Reason                Age   From                         Message
+  ----    ------                ----  ----                         -------
+  Normal  WaitForFirstConsumer  3s    persistentvolume-controller  waiting for first consumer to be created before binding
+
+### 8.2 Introduce a consumer
+$ kubectl apply -f manifests/07-pod-dynamic-writer.yaml
+pod/dynamic-writer created
+
+$ kubectl wait --for=condition=Ready pod/dynamic-writer --timeout=120s
+pod/dynamic-writer condition met
+
+$ kubectl get pvc dynamic-data
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+dynamic-data   Bound    pvc-4a2fbcf3-b9cf-4a28-b698-3d250a61d026   1Gi        RWO            standard       <unset>                 15s
+
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static                              1Gi        RWO            Retain           Bound    dso202-practical-02/pvc-web-static   manual         <unset>                          25s
+pvc-4a2fbcf3-b9cf-4a28-b698-3d250a61d026   1Gi        RWO            Delete           Bound    dso202-practical-02/dynamic-data     standard       <unset>                          9s
+
+$ kubectl get pod dynamic-writer -o wide
+NAME             READY   STATUS    RESTARTS   AGE   IP           NODE            NOMINATED NODE   READINESS GATES
+dynamic-writer   1/1     Running   0          12s   10.244.2.3   worker-node-2   <none>           <none>
+
+# dynamic-writer is on worker-node-2 -> Docker container dso202-p2-worker2
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+pvc-4a2fbcf3-b9cf-4a28-b698-3d250a61d026_dso202-practical-02_dynamic-data
+
+### 8.3 First uncomfortable truth: the requested size is not a limit
+$ kubectl exec dynamic-writer -- df -h /data
+Filesystem                Size      Used Available Use% Mounted on
+/dev/vda1                58.4G     54.8G    554.5M  99% /data
+
+### 8.4 Second uncomfortable truth: this volume cannot grow
+$ kubectl patch pvc dynamic-data --type merge -p '{"spec":{"resources":{"requests":{"storage":"2Gi"}}}}'
+Error from server (Forbidden): persistentvolumeclaims "dynamic-data" is forbidden: only dynamically provisioned pvc can be resized and the storageclass that provisions the pvc must support resize
+
+### 8.5 Delete the claim and observe what Delete means
+$ kubectl exec dynamic-writer -- cat /data/ledger.txt
+2026-11-02T14:37:52Z start pod=dynamic-writer node=worker-node-2
+
+$ kubectl delete pod dynamic-writer
+pod "dynamic-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc dynamic-data
+persistentvolumeclaim "dynamic-data" deleted from dso202-practical-02 namespace
+
+$ kubectl get pv
+NAME            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static   1Gi        RWO            Retain           Bound    dso202-practical-02/pvc-web-static   manual         <unset>                          37s
+
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+

@@ -1,0 +1,28 @@
+$ kubectl apply -f manifests/11-pod-client.yaml
+pod/client created
+
+$ kubectl wait --for=condition=Ready pod/client --timeout=90s
+pod/client condition met
+
+$ kubectl exec client -- nslookup webnote.dso202-practical-02.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	webnote.dso202-practical-02.svc.cluster.local
+Address: 10.244.2.14
+Name:	webnote.dso202-practical-02.svc.cluster.local
+Address: 10.244.1.8
+Name:	webnote.dso202-practical-02.svc.cluster.local
+Address: 10.244.1.6
+
+
+
+$ kubectl exec client -- nslookup webnote-0.webnote.dso202-practical-02.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	webnote-0.webnote.dso202-practical-02.svc.cluster.local
+Address: 10.244.2.14
+
+
+

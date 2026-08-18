@@ -1,0 +1,16 @@
+# Every manifest except 08 (the Stage 4 anti-pattern, deliberately removed) should match the cluster.
+match     manifests/00-namespace.yaml
+match     manifests/01-quota-and-limits.yaml
+match     manifests/02-storageclass-retain.yaml
+match     manifests/03-pv-static.yaml
+match     manifests/04-pvc-static.yaml
+match     manifests/05-pod-static-writer.yaml
+DIFFERS   manifests/06-pvc-dynamic.yaml
+DIFFERS   manifests/07-pod-dynamic-writer.yaml
+match     manifests/09-service-webnote.yaml
+match     manifests/10-statefulset-webnote.yaml
+match     manifests/11-pod-client.yaml
+match     manifests/12-secret-postgres.yaml
+match     manifests/13-service-postgres.yaml
+match     manifests/14-statefulset-postgres.yaml
+# 06 and 07 'differ' only because Stage 3 Step 7 deleted the dynamic-writer Pod and dynamic-data claim on purpose.

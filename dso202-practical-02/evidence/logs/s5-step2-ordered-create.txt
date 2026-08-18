@@ -1,0 +1,23 @@
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote created
+
+$ kubectl get pods -l app=webnote -w
+NAME        READY   STATUS    RESTARTS   AGE
+webnote-0   0/1     Pending   0          0s
+webnote-0   0/1     Pending   0          4s
+webnote-0   0/1     Init:0/1   0          4s
+webnote-0   0/1     Init:0/1   0          5s
+webnote-0   0/1     Init:0/1   0          5s
+webnote-0   0/1     PodInitializing   0          5s
+webnote-0   0/1     Running           0          27s
+webnote-0   1/1     Running           0          33s
+webnote-0   1/1     Running           0          33s
+webnote-1   0/1     Pending           0          0s
+webnote-1   0/1     Pending           0          0s
+webnote-1   0/1     Pending           0          3s
+webnote-1   0/1     Init:0/1          0          3s
+webnote-1   0/1     Init:0/1          0          3s
+webnote-1   0/1     Init:0/1          0          3s
+webnote-1   0/1     PodInitializing   0          3s
+^C
+

@@ -1,0 +1,15 @@
+$ kubectl apply -f manifests/07-pod-dynamic-writer.yaml
+pod/dynamic-writer created
+
+$ kubectl wait --for=condition=Ready pod/dynamic-writer --timeout=120s
+pod/dynamic-writer condition met
+
+$ kubectl get pvc dynamic-data
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+dynamic-data   Bound    pvc-d7161356-0b56-4fa2-8878-980a2aa05a00   1Gi        RWO            standard       <unset>                 25s
+
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static                              1Gi        RWO            Retain           Bound    dso202-practical-02/pvc-web-static   manual         <unset>                          35s
+pvc-d7161356-0b56-4fa2-8878-980a2aa05a00   1Gi        RWO            Delete           Bound    dso202-practical-02/dynamic-data     standard       <unset>                          15s
+

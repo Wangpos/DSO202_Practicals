@@ -1,0 +1,5 @@
+$ kubectl get storageclass
+NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+dso202-retain        rancher.io/local-path   Retain          WaitForFirstConsumer   false                  0s
+standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  21s
+

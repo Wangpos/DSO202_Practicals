@@ -1,0 +1,19 @@
+$ kubectl scale statefulset webnote --replicas=2
+statefulset.apps/webnote scaled
+
+$ kubectl get pods -l app=webnote -w
+NAME        READY   STATUS        RESTARTS   AGE
+webnote-0   1/1     Running       0          2m18s
+webnote-1   1/1     Running       0          36s
+webnote-2   1/1     Running       0          50s
+webnote-3   1/1     Terminating   0          20s
+webnote-3   0/1     Completed     0          20s
+webnote-3   0/1     Completed     0          21s
+webnote-3   0/1     Completed     0          21s
+webnote-2   1/1     Terminating   0          51s
+webnote-2   1/1     Terminating   0          51s
+webnote-2   0/1     Completed     0          51s
+webnote-2   0/1     Completed     0          52s
+webnote-2   0/1     Completed     0          52s
+^C
+

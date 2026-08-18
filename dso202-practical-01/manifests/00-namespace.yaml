@@ -22,5 +22,5 @@ metadata:
     # Annotations carry information for humans and tools. They are never used
     # as selectors, which is the difference between an annotation and a label.
     dso202.cst.edu.bt/description: "Namespace for DSO202 Practical 1 workloads"
-    dso202.cst.edu.bt/owner: "student_name"
+    dso202.cst.edu.bt/owner: "twangpodorji"
     dso202.cst.edu.bt/date: "2026-08-11"

@@ -1,0 +1,80 @@
+# =============================================================================
+# File        : extensions/ext1-statefulset-whenscaled-delete.yaml
+# Practical   : DSO202 Practical 2 - Extension 1
+# Purpose     : A copy of the webnote StatefulSet with
+#               persistentVolumeClaimRetentionPolicy.whenScaled set to Delete,
+#               so that a scale-down destroys the claims of the removed Pods.
+#               Renamed to webnote-ext1 (with its own labels) so that it does
+#               not collide with the webnote StatefulSet or its claims.
+# Apply with  : kubectl apply -f extensions/ext1-statefulset-whenscaled-delete.yaml
+# Then        : kubectl scale statefulset webnote-ext1 --replicas=1
+# NOT part of 'kubectl apply -f manifests/' - kept outside that directory.
+# =============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: webnote-ext1
+  namespace: dso202-practical-02
+  labels:
+    app: webnote-ext1
+    tier: frontend
+    dso202/practical: "02"
+    dso202/managed-by: declarative
+spec:
+  # Reuses the headless Service from Listing 11 only to satisfy the field; the
+  # selector below does not match these Pods, so no per-Pod DNS is published.
+  # DNS is not what this extension examines.
+  serviceName: webnote
+  replicas: 3
+  podManagementPolicy: OrderedReady
+
+  # THE CHANGE UNDER TEST. whenScaled: Delete removes the claim of every Pod
+  # taken away by a scale-down. whenDeleted is left at Retain so that only one
+  # variable changes.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Delete
+
+  selector:
+    matchLabels:
+      app: webnote-ext1
+  template:
+    metadata:
+      labels:
+        app: webnote-ext1
+        tier: frontend
+        dso202/practical: "02"
+        dso202/managed-by: declarative
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: nginx
+          image: nginx:1.31-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: content
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: content
+        labels:
+          app: webnote-ext1
+          dso202/practical: "02"
+          dso202/managed-by: declarative
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 100Mi

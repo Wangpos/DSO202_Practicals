@@ -1,0 +1,10 @@
+$ kind get clusters
+dso202
+
+$ kind delete cluster --name dso202
+Deleting cluster "dso202" ...
+Deleted nodes: ["dso202-control-plane" "dso202-worker" "dso202-worker2"]
+
+$ kind get clusters
+No kind clusters found.
+

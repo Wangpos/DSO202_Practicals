@@ -1,0 +1,9 @@
+$ kubectl delete statefulset webnote
+statefulset.apps "webnote" deleted from dso202-practical-02 namespace
+
+$ sleep 15; kubectl get pods -l app=webnote
+No resources found in dso202-practical-02 namespace.
+
+$ kubectl get pvc -l app=webnote --no-headers | wc -l
+       4
+

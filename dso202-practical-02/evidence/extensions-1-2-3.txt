@@ -1,0 +1,163 @@
+########## Extension 1 - whenScaled: Delete ##########
+$ grep -n -A2 'persistentVolumeClaimRetentionPolicy:' extensions/ext1-statefulset-whenscaled-delete.yaml
+34:  persistentVolumeClaimRetentionPolicy:
+35-    whenDeleted: Retain
+36-    whenScaled: Delete
+
+$ kubectl apply -f extensions/ext1-statefulset-whenscaled-delete.yaml
+statefulset.apps/webnote-ext1 created
+
+$ kubectl rollout status statefulset/webnote-ext1 --timeout=300s
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl get pvc -l app=webnote-ext1
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext1-0   Bound    pvc-e7d66d0f-994c-49b3-823f-6fa7e02f762e   100Mi      RWO            standard       <unset>                 12s
+content-webnote-ext1-1   Bound    pvc-1aa7bf23-ba3c-4760-956a-ea130f90ed7e   100Mi      RWO            standard       <unset>                 8s
+content-webnote-ext1-2   Bound    pvc-43eb15af-b28f-417f-b33f-f94a5de7efb8   100Mi      RWO            standard       <unset>                 4s
+
+$ kubectl scale statefulset webnote-ext1 --replicas=1
+statefulset.apps/webnote-ext1 scaled
+
+$ kubectl get pods -l app=webnote-ext1
+NAME             READY   STATUS    RESTARTS   AGE
+webnote-ext1-0   1/1     Running   0          21s
+
+$ kubectl get pvc -l app=webnote-ext1
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext1-0   Bound    pvc-e7d66d0f-994c-49b3-823f-6fa7e02f762e   100Mi      RWO            standard       <unset>                 21s
+
+$ kubectl delete statefulset webnote-ext1
+statefulset.apps "webnote-ext1" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc -l app=webnote-ext1
+persistentvolumeclaim "content-webnote-ext1-0" deleted from dso202-practical-02 namespace
+
+########## Extension 2 - change an immutable field ##########
+$ kubectl apply -f extensions/ext2-statefulset-parallel.yaml
+The StatefulSet "webnote" is invalid: spec: Forbidden: updates to statefulset spec for fields other than 'replicas', 'ordinals', 'template', 'updateStrategy', 'revisionHistoryLimit', 'persistentVolumeClaimRetentionPolicy' and 'minReadySeconds' are forbidden
+
+$ kubectl explain statefulset.spec | grep -E '^  [a-zA-Z]+\s'
+  minReadySeconds	<integer>
+  ordinals	<StatefulSetOrdinals>
+  persistentVolumeClaimRetentionPolicy	<StatefulSetPersistentVolumeClaimRetentionPolicy>
+  podManagementPolicy	<string>
+  replicas	<integer>
+  revisionHistoryLimit	<integer>
+  selector	<LabelSelector> -required-
+  serviceName	<string>
+  template	<PodTemplateSpec> -required-
+  updateStrategy	<StatefulSetUpdateStrategy>
+  volumeClaimTemplates	<[]PersistentVolumeClaim>
+
+$ kubectl delete statefulset webnote
+statefulset.apps "webnote" deleted from dso202-practical-02 namespace
+
+$ kubectl apply -f extensions/ext2-statefulset-parallel.yaml
+statefulset.apps/webnote created
+
+$ kubectl get pods -l app=webnote -w
+NAME        READY   STATUS    RESTARTS   AGE
+webnote-0   0/1     Pending   0          0s
+webnote-0   0/1     Pending   0          0s
+webnote-1   0/1     Pending   0          0s
+webnote-1   0/1     Pending   0          0s
+webnote-2   0/1     Pending   0          0s
+webnote-0   0/1     Init:0/1   0          0s
+webnote-2   0/1     Pending    0          0s
+webnote-1   0/1     Init:0/1   0          0s
+webnote-2   0/1     Init:0/1   0          0s
+webnote-1   0/1     Init:0/1   0          1s
+webnote-0   0/1     Init:0/1   0          1s
+webnote-2   0/1     Init:0/1   0          1s
+webnote-1   0/1     Init:0/1   0          1s
+webnote-0   0/1     Init:0/1   0          1s
+webnote-2   0/1     Init:0/1   0          1s
+webnote-0   0/1     PodInitializing   0          1s
+webnote-1   0/1     PodInitializing   0          1s
+webnote-2   0/1     PodInitializing   0          1s
+webnote-1   0/1     Running           0          1s
+webnote-2   0/1     Running           0          1s
+webnote-0   0/1     Running           0          1s
+webnote-0   1/1     Running           0          7s
+webnote-1   1/1     Running           0          7s
+webnote-0   1/1     Running           0          7s
+webnote-1   1/1     Running           0          7s
+webnote-2   1/1     Running           0          7s
+
+$ kubectl get statefulset webnote -o jsonpath='{.spec.podManagementPolicy}{"
+"}'
+Parallel
+
+# restore the graded manifest (OrderedReady)
+$ kubectl delete statefulset webnote
+statefulset.apps "webnote" deleted from dso202-practical-02 namespace
+
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote created
+
+$ kubectl rollout status statefulset/webnote --timeout=300s
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl get statefulset webnote -o jsonpath='{.spec.podManagementPolicy}{"
+"}'
+OrderedReady
+
+########## Extension 3 - ordinals.start ##########
+$ kubectl explain statefulset.spec.ordinals.start
+GROUP:      apps
+KIND:       StatefulSet
+VERSION:    v1
+
+FIELD: start <integer>
+
+
+DESCRIPTION:
+    start is the number representing the first replica's index. It may be used
+    to number replicas from an alternate index (eg: 1-indexed) over the default
+    0-indexed names, or to orchestrate progressive movement of replicas from one
+    StatefulSet to another. If set, replica indices will be in the range:
+      [.spec.ordinals.start, .spec.ordinals.start + .spec.replicas).
+    If unset, defaults to 0. Replica indices will be in the range:
+      [0, .spec.replicas).
+    
+
+
+$ kubectl apply -f extensions/ext3-statefulset-ordinals.yaml
+statefulset.apps/webnote-ext3 created
+
+$ kubectl rollout status statefulset/webnote-ext3 --timeout=300s
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 2 new pods have been updated...
+
+$ kubectl get pods -l app=webnote-ext3
+NAME             READY   STATUS    RESTARTS   AGE
+webnote-ext3-2   1/1     Running   0          8s
+webnote-ext3-3   1/1     Running   0          4s
+
+$ kubectl get pvc -l app=webnote-ext3
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext3-2   Bound    pvc-563159ac-1156-4a7c-bb81-2db186f5a8f3   100Mi      RWO            standard       <unset>                 8s
+content-webnote-ext3-3   Bound    pvc-bf0651a1-2b3d-4088-818a-af61868bff38   100Mi      RWO            standard       <unset>                 4s
+
+$ kubectl delete statefulset webnote-ext3
+statefulset.apps "webnote-ext3" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc -l app=webnote-ext3
+persistentvolumeclaim "content-webnote-ext3-2" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "content-webnote-ext3-3" deleted from dso202-practical-02 namespace
+

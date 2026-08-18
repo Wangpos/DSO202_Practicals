@@ -1,0 +1,3 @@
+$ kubectl get storageclass manual
+Error from server (NotFound): storageclasses.storage.k8s.io "manual" not found
+

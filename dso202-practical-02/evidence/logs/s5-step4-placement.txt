@@ -1,0 +1,6 @@
+$ kubectl get pods -l app=webnote -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,IP:.status.podIP
+NAME        NODE            IP
+webnote-0   worker-node-2   10.244.2.14
+webnote-1   worker-node-1   10.244.1.6
+webnote-2   worker-node-1   10.244.1.8
+

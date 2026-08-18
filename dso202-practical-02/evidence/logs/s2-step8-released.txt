@@ -1,0 +1,10 @@
+$ kubectl delete pod static-writer
+pod "static-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc pvc-web-static
+persistentvolumeclaim "pvc-web-static" deleted from dso202-practical-02 namespace
+
+$ kubectl get pv
+NAME            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS     CLAIM                                STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static   1Gi        RWO            Retain           Released   dso202-practical-02/pvc-web-static   manual         <unset>                          34s
+

@@ -1,0 +1,7 @@
+$ kubectl apply -f manifests/03-pv-static.yaml
+persistentvolume/pv-web-static created
+
+$ kubectl get pv
+NAME            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static   1Gi        RWO            Retain           Available           manual         <unset>                          0s
+

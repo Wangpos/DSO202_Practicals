@@ -1,0 +1,20 @@
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name
+NAME
+shared-writer-6f4b987c7b-87xcs
+shared-writer-6f4b987c7b-hv9wg
+shared-writer-6f4b987c7b-t55bz
+
+$ kubectl delete pod -l app=shared-writer --field-selector status.phase=Running --wait=false
+pod "shared-writer-6f4b987c7b-87xcs" deleted from dso202-practical-02 namespace
+pod "shared-writer-6f4b987c7b-hv9wg" deleted from dso202-practical-02 namespace
+pod "shared-writer-6f4b987c7b-t55bz" deleted from dso202-practical-02 namespace
+
+$ sleep 15
+
+
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+NAME                             NODE
+shared-writer-6f4b987c7b-9jmh8   worker-node-2
+shared-writer-6f4b987c7b-b8lxd   worker-node-2
+shared-writer-6f4b987c7b-nv7lv   worker-node-2
+

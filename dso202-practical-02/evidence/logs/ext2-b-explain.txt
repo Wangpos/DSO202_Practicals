@@ -1,0 +1,13 @@
+$ kubectl explain statefulset.spec | grep -E '^  [a-zA-Z]+\s'
+  minReadySeconds	<integer>
+  ordinals	<StatefulSetOrdinals>
+  persistentVolumeClaimRetentionPolicy	<StatefulSetPersistentVolumeClaimRetentionPolicy>
+  podManagementPolicy	<string>
+  replicas	<integer>
+  revisionHistoryLimit	<integer>
+  selector	<LabelSelector> -required-
+  serviceName	<string>
+  template	<PodTemplateSpec> -required-
+  updateStrategy	<StatefulSetUpdateStrategy>
+  volumeClaimTemplates	<[]PersistentVolumeClaim>
+

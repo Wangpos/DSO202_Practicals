@@ -1,0 +1,24 @@
+$ kubectl delete pod webnote-1
+pod "webnote-1" deleted from dso202-practical-02 namespace
+
+$ kubectl wait --for=condition=Ready pod/webnote-1 --timeout=120s
+pod/webnote-1 condition met
+
+$ kubectl get pod webnote-1 -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,IP:.status.podIP
+NAME        NODE            IP
+webnote-1   worker-node-1   10.244.1.9
+
+$ kubectl get pvc content-webnote-1
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-1   Bound    pvc-8e05241a-90ac-4d51-9ce7-65c365474817   1Gi        RWO            standard       <unset>                 71s
+
+$ kubectl get pod webnote-1
+NAME        READY   STATUS    RESTARTS   AGE
+webnote-1   1/1     Running   0          7s
+
+$ kubectl exec client -- wget -qO- http://webnote-1.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-1</h2>
+created: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:50:33Z on worker-node-1
+

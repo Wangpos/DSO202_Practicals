@@ -1,0 +1,178 @@
+### 11.1 Scale up
+$ kubectl scale statefulset webnote --replicas=4
+statefulset.apps/webnote scaled
+
+$ kubectl wait --for=condition=Ready pod/webnote-3 --timeout=180s
+pod/webnote-3 condition met
+
+$ kubectl get pvc -l app=webnote --no-headers | wc -l
+       4
+
+### 11.2 Scale down and inspect what remains
+$ kubectl scale statefulset webnote --replicas=2
+statefulset.apps/webnote scaled
+
+$ kubectl get pods -l app=webnote -w
+NAME        READY   STATUS        RESTARTS   AGE
+webnote-3   1/1     Terminating   0          11s
+webnote-3   1/1     Terminating   0          11s
+webnote-3   0/1     Completed     0          20s
+webnote-3   0/1     Completed     0          21s
+webnote-3   0/1     Completed     0          21s
+webnote-2   1/1     Terminating   0          114s
+webnote-2   1/1     Terminating   0          114s
+webnote-2   0/1     Completed     0          114s
+webnote-2   0/1     Completed     0          115s
+webnote-2   0/1     Completed     0          115s
+webnote-2   0/1     Completed     0          115s
+
+$ kubectl get pods -l app=webnote
+NAME        READY   STATUS    RESTARTS   AGE
+webnote-0   1/1     Running   0          6m24s
+webnote-1   1/1     Running   0          104s
+
+$ kubectl get pvc -l app=webnote
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-0   Bound    pvc-06ae3dbb-bf53-4270-9be2-dd7267311a87   1Gi        RWO            standard       <unset>                 6m24s
+content-webnote-1   Bound    pvc-a6d09c68-34e4-4b57-b21e-f8c4d447da19   1Gi        RWO            standard       <unset>                 2m48s
+content-webnote-2   Bound    pvc-a4111d16-eaa2-4ad6-938f-71a8a4547563   1Gi        RWO            standard       <unset>                 117s
+content-webnote-3   Bound    pvc-a92819d1-b01a-4139-a37d-050d7a6c7ce0   1Gi        RWO            standard       <unset>                 24s
+
+$ kubectl scale statefulset webnote --replicas=3
+statefulset.apps/webnote scaled
+
+$ kubectl wait --for=condition=Ready pod/webnote-2 --timeout=180s
+pod/webnote-2 condition met
+
+$ kubectl exec client -- wget -qO- http://webnote-2.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-2</h2>
+created: 2026-11-02T14:44:45Z on worker-node-2
+started: 2026-11-02T14:44:45Z on worker-node-2
+started: 2026-11-02T14:46:40Z on worker-node-2
+
+### 11.3 Step 5. partition: 2 and image nginx:1.31-alpine in the committed manifest
+$ grep -n 'partition:\|image: nginx' manifests/10-statefulset-webnote.yaml
+49:      partition: 2
+123:          image: nginx:1.31-alpine
+
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote configured
+
+$ kubectl get pods -l app=webnote -o 'custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image'
+NAME        IMAGE
+webnote-0   nginx:1.30-alpine
+webnote-1   nginx:1.30-alpine
+webnote-2   nginx:1.31-alpine
+
+### Step 6. partition back to 0 in the committed manifest
+$ grep -n 'partition:' manifests/10-statefulset-webnote.yaml
+49:      partition: 0
+
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote configured
+
+$ kubectl rollout status statefulset/webnote --timeout=300s
+Waiting for partitioned roll out to finish: 1 out of 3 new pods have been updated...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for partitioned roll out to finish: 2 out of 3 new pods have been updated...
+Waiting for partitioned roll out to finish: 2 out of 3 new pods have been updated...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl get pods -l app=webnote -o 'custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image'
+NAME        IMAGE
+webnote-0   nginx:1.31-alpine
+webnote-1   nginx:1.31-alpine
+webnote-2   nginx:1.31-alpine
+
+$ kubectl exec client -- wget -qO- http://webnote-0.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-0</h2>
+created: 2026-11-02T14:40:18Z on worker-node-2
+started: 2026-11-02T14:40:18Z on worker-node-2
+note added by hand in Stage 5
+started: 2026-11-02T14:48:50Z on worker-node-2
+
+$ kubectl explain statefulset.spec.updateStrategy.rollingUpdate
+GROUP:      apps
+KIND:       StatefulSet
+VERSION:    v1
+
+FIELD: rollingUpdate <RollingUpdateStatefulSetStrategy>
+
+
+DESCRIPTION:
+    RollingUpdate is used to communicate parameters when Type is
+    RollingUpdateStatefulSetStrategyType.
+    RollingUpdateStatefulSetStrategy is used to communicate parameter for
+    RollingUpdateStatefulSetStrategyType.
+    
+FIELDS:
+  maxUnavailable	<IntOrString>
+    The maximum number of pods that can be unavailable during the update. Value
+    can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+    Absolute number is calculated from percentage by rounding up. This can not
+    be 0. Defaults to 1. This field is beta-level and is enabled by default. The
+    field applies to all pods in the range 0 to Replicas-1. That means if there
+    is any unavailable pod in the range 0 to Replicas-1, it will be counted
+    towards MaxUnavailable. This setting might not be effective for the
+    OrderedReady podManagementPolicy. That policy ensures pods are created and
+    become ready one at a time.
+
+  partition	<integer>
+    Partition indicates the ordinal at which the StatefulSet should be
+    partitioned for updates. During a rolling update, all pods from ordinal
+    Replicas-1 to Partition are updated. All pods from ordinal Partition-1 to 0
+    remain untouched. This is helpful in being able to do a canary based
+    deployment. The default value is 0.
+
+
+
+### 11.4 Delete the controller, keep the data
+$ kubectl delete statefulset webnote
+statefulset.apps "webnote" deleted from dso202-practical-02 namespace
+
+$ kubectl get pods -l app=webnote
+No resources found in dso202-practical-02 namespace.
+
+$ kubectl get pvc -l app=webnote --no-headers | wc -l
+       4
+
+### Step 8. Recreate it and confirm the workload returns with its data
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote created
+
+$ kubectl rollout status statefulset/webnote --timeout=300s
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl exec client -- wget -qO- http://webnote-1.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-1</h2>
+created: 2026-11-02T14:43:54Z on worker-node-1
+started: 2026-11-02T14:43:54Z on worker-node-1
+started: 2026-11-02T14:44:56Z on worker-node-1
+started: 2026-11-02T14:48:38Z on worker-node-1
+started: 2026-11-02T14:49:28Z on worker-node-1
+
+$ kubectl get pvc -l app=webnote
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-0   Bound    pvc-06ae3dbb-bf53-4270-9be2-dd7267311a87   1Gi        RWO            standard       <unset>                 9m30s
+content-webnote-1   Bound    pvc-a6d09c68-34e4-4b57-b21e-f8c4d447da19   1Gi        RWO            standard       <unset>                 5m54s
+content-webnote-2   Bound    pvc-a4111d16-eaa2-4ad6-938f-71a8a4547563   1Gi        RWO            standard       <unset>                 5m3s
+content-webnote-3   Bound    pvc-a92819d1-b01a-4139-a37d-050d7a6c7ce0   1Gi        RWO            standard       <unset>                 3m30s
+
+$ kubectl get pods -l app=webnote -o 'custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image'
+NAME        IMAGE
+webnote-0   nginx:1.31-alpine
+webnote-1   nginx:1.31-alpine
+webnote-2   nginx:1.31-alpine
+

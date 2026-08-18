@@ -1,0 +1,6 @@
+$ kubectl get pvc -l app=webnote
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-0   Bound    pvc-0832de9d-4e36-4f51-ae04-e7b1f43c6c23   1Gi        RWO            standard       <unset>                 99s
+content-webnote-1   Bound    pvc-8e05241a-90ac-4d51-9ce7-65c365474817   1Gi        RWO            standard       <unset>                 61s
+content-webnote-2   Bound    pvc-58d6644e-e5a4-4870-af0d-6df9bbbc228e   1Gi        RWO            standard       <unset>                 11s
+

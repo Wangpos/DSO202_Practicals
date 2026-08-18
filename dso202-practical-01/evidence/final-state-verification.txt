@@ -1,0 +1,30 @@
+$ kubectl diff -f manifests/ && echo "cluster matches repository"
+cluster matches repository
+
+$ kubectl get deployment web-deployment
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+web-deployment   3/3     3            3           2m39s
+
+$ curl -s http://localhost:30080   (x4)
+served by web-deployment-5d8696bcfb-pdhpc
+served by web-declarative
+served by web-deployment-5d8696bcfb-wqkqn
+served by web-deployment-5d8696bcfb-wqkqn
+
+$ kubectl exec client-pod -- nslookup web-clusterip
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	web-clusterip.dso202-practical-01.svc.cluster.local
+Address: 10.96.245.152
+
+** server can't find web-clusterip.svc.cluster.local: NXDOMAIN
+
+** server can't find web-clusterip.svc.cluster.local: NXDOMAIN
+
+** server can't find web-clusterip.cluster.local: NXDOMAIN
+
+** server can't find web-clusterip.cluster.local: NXDOMAIN
+
+
+command terminated with exit code 1

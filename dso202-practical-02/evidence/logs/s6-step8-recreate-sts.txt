@@ -1,0 +1,27 @@
+$ kubectl apply -f manifests/10-statefulset-webnote.yaml
+statefulset.apps/webnote created
+
+$ kubectl rollout status statefulset/webnote --timeout=300s
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+
+$ kubectl exec client -- wget -qO- http://webnote-1.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-1</h2>
+created: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:50:33Z on worker-node-1
+started: 2026-11-10T15:53:00Z on worker-node-1
+started: 2026-11-10T15:54:38Z on worker-node-1
+
+$ kubectl get pods -l app=webnote -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image
+NAME        IMAGE
+webnote-0   nginx:1.31-alpine
+webnote-1   nginx:1.31-alpine
+webnote-2   nginx:1.31-alpine
+

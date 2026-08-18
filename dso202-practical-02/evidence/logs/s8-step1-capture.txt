@@ -1,0 +1,29 @@
+$ kubectl get all -o wide > evidence/logs/final-state-all.txt
+
+
+$ kubectl get pv,pvc,storageclass -o wide > evidence/logs/final-state-storage.txt
+
+
+$ kubectl get statefulset webnote -o yaml > evidence/logs/final-statefulset-webnote.yaml
+
+
+$ kubectl get events --sort-by=.lastTimestamp > evidence/logs/final-state-events.txt
+
+
+$ kubectl exec postgres-0 -- pg_dump -U taskuser -d tasktracker > evidence/logs/tasktracker-dump.sql
+
+
+$ ls -l evidence/logs/final-* evidence/logs/tasktracker-dump.sql
+-rw-r--r--@ 1 tsheringwangpodorji  staff   1406 Nov 10 22:04 evidence/logs/final-state-all.txt
+-rw-r--r--@ 1 tsheringwangpodorji  staff  49727 Nov 10 22:04 evidence/logs/final-state-events.txt
+-rw-r--r--@ 1 tsheringwangpodorji  staff   3212 Nov 10 22:04 evidence/logs/final-state-storage.txt
+-rw-r--r--@ 1 tsheringwangpodorji  staff   6725 Nov 10 22:04 evidence/logs/final-statefulset-webnote.yaml
+-rw-r--r--@ 1 tsheringwangpodorji  staff   2079 Nov 10 22:04 evidence/logs/tasktracker-dump.sql
+
+$ grep -A4 'COPY public.tasks' evidence/logs/tasktracker-dump.sql
+COPY public.tasks (id, title, done) FROM stdin;
+1	Complete Practical 2	f
+2	Read Unit II notes	f
+3	Draft the report	f
+\.
+

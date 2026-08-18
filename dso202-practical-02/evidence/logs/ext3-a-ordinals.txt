@@ -1,0 +1,38 @@
+$ kubectl explain statefulset.spec.ordinals.start
+GROUP:      apps
+KIND:       StatefulSet
+VERSION:    v1
+
+FIELD: start <integer>
+
+
+DESCRIPTION:
+    start is the number representing the first replica's index. It may be used
+    to number replicas from an alternate index (eg: 1-indexed) over the default
+    0-indexed names, or to orchestrate progressive movement of replicas from one
+    StatefulSet to another. If set, replica indices will be in the range:
+      [.spec.ordinals.start, .spec.ordinals.start + .spec.replicas).
+    If unset, defaults to 0. Replica indices will be in the range:
+      [0, .spec.replicas).
+    
+
+
+$ kubectl apply -f extensions/ext3-statefulset-ordinals.yaml
+statefulset.apps/webnote-ext3 created
+
+$ kubectl rollout status statefulset/webnote-ext3 --timeout=300s
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 2 new pods have been updated...
+
+$ kubectl get pods -l app=webnote-ext3
+NAME             READY   STATUS    RESTARTS   AGE
+webnote-ext3-2   1/1     Running   0          7s
+webnote-ext3-3   1/1     Running   0          3s
+
+$ kubectl get pvc -l app=webnote-ext3
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext3-2   Bound    pvc-9409cc28-d80b-4ba4-a608-14e0c84d8c21   100Mi      RWO            standard       <unset>                 8s
+content-webnote-ext3-3   Bound    pvc-5644039d-7da9-4f95-9278-64ba42651162   100Mi      RWO            standard       <unset>                 4s
+

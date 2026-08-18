@@ -1,0 +1,75 @@
+# =============================================================================
+# File        : extensions/ext3-statefulset-ordinals.yaml
+# Practical   : DSO202 Practical 2 - Extension 3
+# Purpose     : Start the replica ordinals at 2 instead of 0, using
+#               spec.ordinals.start. Checked first with
+#               'kubectl explain statefulset.spec.ordinals'.
+# Apply with  : kubectl apply -f extensions/ext3-statefulset-ordinals.yaml
+# Expect      : Pods webnote-ext3-2 and webnote-ext3-3, claims
+#               content-webnote-ext3-2 and content-webnote-ext3-3.
+# NOT part of 'kubectl apply -f manifests/' - kept outside that directory.
+# =============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: webnote-ext3
+  namespace: dso202-practical-02
+  labels:
+    app: webnote-ext3
+    tier: frontend
+    dso202/practical: "02"
+    dso202/managed-by: declarative
+spec:
+  serviceName: webnote
+  replicas: 2
+
+  # THE CHANGE UNDER TEST. With start: 2 the replicas are numbered 2..(2+n-1).
+  # Used in migrations: a StatefulSet in a new cluster can take over ordinals
+  # 2 and up while the old StatefulSet keeps 0 and 1, then the ranges move
+  # one replica at a time without two Pods ever claiming the same identity.
+  ordinals:
+    start: 2
+
+  selector:
+    matchLabels:
+      app: webnote-ext3
+  template:
+    metadata:
+      labels:
+        app: webnote-ext3
+        tier: frontend
+        dso202/practical: "02"
+        dso202/managed-by: declarative
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: nginx
+          image: nginx:1.31-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: content
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: content
+        labels:
+          app: webnote-ext3
+          dso202/practical: "02"
+          dso202/managed-by: declarative
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 100Mi

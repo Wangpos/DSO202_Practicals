@@ -1,0 +1,9 @@
+$ kubectl scale statefulset webnote --replicas=4
+statefulset.apps/webnote scaled
+
+$ kubectl wait --for=condition=Ready pod/webnote-3 --timeout=180s
+pod/webnote-3 condition met
+
+$ kubectl get pvc -l app=webnote --no-headers | wc -l
+       4
+

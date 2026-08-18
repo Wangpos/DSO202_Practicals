@@ -1,0 +1,11 @@
+$ df -h /var/lib/docker 2>/dev/null || df -h /
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   460Gi    12Gi   185Gi     6%    459k  1.9G    0%   /
+
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          61        17        8.582GB   5.047GB (58%)
+Containers      48        3         1.185GB   1.182GB (99%)
+Local Volumes   59        2         19.92GB   17.24GB (86%)
+Build Cache     31        0         277MB     28.41kB
+

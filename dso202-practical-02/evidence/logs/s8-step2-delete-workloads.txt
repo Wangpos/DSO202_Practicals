@@ -1,0 +1,15 @@
+$ kubectl delete -f manifests/14-statefulset-postgres.yaml
+statefulset.apps "postgres" deleted from dso202-practical-02 namespace
+
+$ kubectl delete -f manifests/10-statefulset-webnote.yaml
+statefulset.apps "webnote" deleted from dso202-practical-02 namespace
+
+$ kubectl delete -f manifests/11-pod-client.yaml
+pod "client" deleted from dso202-practical-02 namespace
+
+$ kubectl delete -f manifests/05-pod-static-writer.yaml
+pod "static-writer" deleted from dso202-practical-02 namespace
+
+$ sleep 20; kubectl get pods
+No resources found in dso202-practical-02 namespace.
+

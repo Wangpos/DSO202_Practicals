@@ -1,0 +1,19 @@
+$ kubectl logs postgres-0 | tail -n 4
+2026-11-10 15:59:28.628 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-11-10 15:59:28.629 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-10 15:59:28.647 UTC [72] LOG:  database system was shut down at 2026-11-10 15:59:28 UTC
+2026-11-10 15:59:28.649 UTC [1] LOG:  database system is ready to accept connections
+
+$ kubectl get pvc data-postgres-0
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS    VOLUMEATTRIBUTESCLASS   AGE
+data-postgres-0   Bound    pvc-2b1ac828-e445-4e0f-aed8-47baf947efea   2Gi        RWO            dso202-retain   <unset>                 4m31s
+
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                   STORAGECLASS    VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static                              1Gi        RWO            Retain           Bound    dso202-practical-02/pvc-web-static      manual          <unset>                          12m
+pvc-0832de9d-4e36-4f51-ae04-e7b1f43c6c23   1Gi        RWO            Delete           Bound    dso202-practical-02/content-webnote-0   standard        <unset>                          10m
+pvc-2b1ac828-e445-4e0f-aed8-47baf947efea   2Gi        RWO            Retain           Bound    dso202-practical-02/data-postgres-0     dso202-retain   <unset>                          4m29s
+pvc-58d6644e-e5a4-4870-af0d-6df9bbbc228e   1Gi        RWO            Delete           Bound    dso202-practical-02/content-webnote-2   standard        <unset>                          9m15s
+pvc-8e05241a-90ac-4d51-9ce7-65c365474817   1Gi        RWO            Delete           Bound    dso202-practical-02/content-webnote-1   standard        <unset>                          10m
+pvc-e2262dbc-7ef7-42f2-b47a-cc76ecd18e11   1Gi        RWO            Delete           Bound    dso202-practical-02/content-webnote-3   standard        <unset>                          8m44s
+

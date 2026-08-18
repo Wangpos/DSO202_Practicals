@@ -1,0 +1,4 @@
+$ kubectl exec dynamic-writer -- df -h /data
+Filesystem                Size      Used Available Use% Mounted on
+/dev/vda1                58.4G     33.5G     21.8G  61% /data
+

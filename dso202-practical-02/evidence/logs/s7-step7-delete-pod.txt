@@ -1,0 +1,22 @@
+$ kubectl delete pod postgres-0
+pod "postgres-0" deleted from dso202-practical-02 namespace
+
+$ kubectl wait --for=condition=Ready pod/postgres-0 --timeout=180s
+pod/postgres-0 condition met
+
+$ kubectl exec postgres-0 -- psql -U taskuser -d tasktracker -c "SELECT count(*) FROM tasks;"
+ count 
+-------
+     3
+(1 row)
+
+
+$ kubectl exec postgres-0 -- psql -U taskuser -d tasktracker -c "SELECT id, title, done FROM tasks ORDER BY id;"
+ id |        title         | done 
+----+----------------------+------
+  1 | Complete Practical 2 | f
+  2 | Read Unit II notes   | f
+  3 | Draft the report     | f
+(3 rows)
+
+

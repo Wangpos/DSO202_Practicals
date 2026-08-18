@@ -1,0 +1,4 @@
+$ kubectl get endpointslice -l kubernetes.io/service-name=webnote
+NAME            ADDRESSTYPE   PORTS   ENDPOINTS                           AGE
+webnote-9cczv   IPv4          80      10.244.2.14,10.244.1.6,10.244.1.8   111s
+

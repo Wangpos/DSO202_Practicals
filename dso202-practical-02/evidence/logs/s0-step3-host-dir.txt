@@ -1,0 +1,6 @@
+$ mkdir -p /tmp/dso202-p2-storage
+
+
+$ ls -ld /tmp/dso202-p2-storage
+drwxr-xr-x@ 2 tsheringwangpodorji  wheel  64 Nov 10 21:43 /tmp/dso202-p2-storage
+

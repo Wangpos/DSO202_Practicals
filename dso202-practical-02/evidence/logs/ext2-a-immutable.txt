@@ -1,0 +1,3 @@
+$ kubectl apply -f extensions/ext2-statefulset-parallel.yaml
+The StatefulSet "webnote" is invalid: spec: Forbidden: updates to statefulset spec for fields other than 'replicas', 'ordinals', 'template', 'updateStrategy', 'revisionHistoryLimit', 'persistentVolumeClaimRetentionPolicy' and 'minReadySeconds' are forbidden
+

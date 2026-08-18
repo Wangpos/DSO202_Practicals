@@ -1,0 +1,29 @@
+$ docker info --format '{{.ServerVersion}}'
+29.9.2
+
+$ kind version
+kind v0.32.0 go1.26.3 darwin/arm64
+
+$ kubectl version --client
+Client Version: v1.37.2
+Kustomize Version: v5.8.1
+
+$ kind get clusters
+dso202
+
+$ kind delete cluster --name dso202
+Deleting cluster "dso202" ...
+Deleted nodes: ["dso202-control-plane"]
+
+$ kind get clusters
+No kind clusters found.
+
+$ mkdir -p /tmp/dso202-p2-storage
+
+$ ls -ld /tmp/dso202-p2-storage
+drwxr-xr-x@ - tsheringwangpodorji  2 Nov 20:36  /tmp/dso202-p2-storage
+
+$ df -h /
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   460Gi    12Gi   179Gi     7%    459k  1.9G    0%   /
+

@@ -1,0 +1,13 @@
+$ kubectl config set-context --current --namespace=default
+Context "kind-dso202-p2" modified.
+
+$ kind delete cluster --name dso202-p2
+Deleting cluster "dso202-p2" ...
+Deleted nodes: ["dso202-p2-worker2" "dso202-p2-worker" "dso202-p2-control-plane"]
+
+$ kind get clusters
+No kind clusters found.
+
+$ docker ps --filter name=dso202-p2
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+

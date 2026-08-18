@@ -1,0 +1,139 @@
+########## Extension 4 - restore from the dump on a rebuilt cluster ##########
+$ kind create cluster --config cluster/kind-cluster.yaml 2>&1 | tail -1
+Have a nice day! 👋
+
+$ kubectl wait --for=condition=Ready nodes --all --timeout=180s
+node/control-plane condition met
+node/worker-node-1 condition met
+node/worker-node-2 condition met
+
+$ kubectl apply -f manifests/00-namespace.yaml -f manifests/01-quota-and-limits.yaml -f manifests/02-storageclass-retain.yaml
+namespace/dso202-practical-02 created
+resourcequota/dso202-p2-quota created
+limitrange/dso202-p2-limits created
+storageclass.storage.k8s.io/dso202-retain created
+
+$ kubectl apply -f manifests/12-secret-postgres.yaml -f manifests/13-service-postgres.yaml -f manifests/14-statefulset-postgres.yaml
+secret/postgres-credentials created
+service/postgres-headless created
+service/postgres created
+statefulset.apps/postgres created
+
+$ kubectl -n dso202-practical-02 rollout status statefulset/postgres --timeout=900s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+
+# A brand-new, empty database: the table does not exist yet
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT count(*) FROM tasks;'
+ERROR:  relation "tasks" does not exist
+LINE 1: SELECT count(*) FROM tasks;
+                             ^
+command terminated with exit code 1
+
+$ kubectl -n dso202-practical-02 exec -i postgres-0 -- psql -U taskuser -d tasktracker < evidence/tasktracker-dump.sql
+SET
+SET
+SET
+SET
+SET
+SET
+ set_config 
+------------
+ 
+(1 row)
+
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE SEQUENCE
+ALTER SEQUENCE
+ALTER SEQUENCE
+ALTER TABLE
+COPY 3
+ setval 
+--------
+      3
+(1 row)
+
+ALTER TABLE
+
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT id, title, done FROM tasks ORDER BY id;'
+ id |        title         | done 
+----+----------------------+------
+  1 | Complete Practical 2 | f
+  2 | Read Unit II notes   | f
+  3 | Draft the report     | f
+(3 rows)
+
+
+# A dropped table: volume persistence keeps the DROP, only the dump can undo it
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'DROP TABLE tasks;'
+DROP TABLE
+
+$ kubectl -n dso202-practical-02 delete pod postgres-0
+pod "postgres-0" deleted from dso202-practical-02 namespace
+
+$ kubectl -n dso202-practical-02 wait --for=condition=Ready pod/postgres-0 --timeout=180s
+pod/postgres-0 condition met
+
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT count(*) FROM tasks;'
+ERROR:  relation "tasks" does not exist
+LINE 1: SELECT count(*) FROM tasks;
+                             ^
+command terminated with exit code 1
+
+$ kubectl -n dso202-practical-02 exec -i postgres-0 -- psql -U taskuser -d tasktracker < evidence/tasktracker-dump.sql
+SET
+SET
+SET
+SET
+SET
+SET
+ set_config 
+------------
+ 
+(1 row)
+
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE SEQUENCE
+ALTER SEQUENCE
+ALTER SEQUENCE
+ALTER TABLE
+COPY 3
+ setval 
+--------
+      3
+(1 row)
+
+ALTER TABLE
+
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT count(*) FROM tasks;'
+ count 
+-------
+     3
+(1 row)
+
+
+# cleanup
+$ kubectl -n dso202-practical-02 delete -f manifests/14-statefulset-postgres.yaml
+statefulset.apps "postgres" deleted from dso202-practical-02 namespace
+
+$ kind delete cluster --name dso202-p2
+Deleting cluster "dso202-p2" ...
+Deleted nodes: ["dso202-p2-worker" "dso202-p2-control-plane" "dso202-p2-worker2"]
+
+$ kind get clusters
+No kind clusters found.
+

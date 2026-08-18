@@ -1,0 +1,21 @@
+$ kubectl delete pv pv-web-static
+persistentvolume "pv-web-static" deleted
+
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS     CLAIM                                 STORAGECLASS    VOLUMEATTRIBUTESCLASS   REASON   AGE
+pvc-2b1ac828-e445-4e0f-aed8-47baf947efea   2Gi        RWO            Retain           Released   dso202-practical-02/data-postgres-0   dso202-retain   <unset>                          10m
+
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+pvc-2b1ac828-e445-4e0f-aed8-47baf947efea_dso202-practical-02_data-postgres-0
+
+$ docker exec dso202-p2-worker2 sh -c 'ls /var/local-path-provisioner/*/18/docker | head -5'
+PG_VERSION
+base
+global
+pg_commit_ts
+pg_dynshmem
+
+$ ls -l /tmp/dso202-p2-storage/pv-web-static/
+total 8
+-rw-r--r--  1 tsheringwangpodorji  wheel  192 Nov 10 21:46 ledger.txt
+

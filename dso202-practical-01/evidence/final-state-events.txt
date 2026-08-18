@@ -1,0 +1,31 @@
+LAST SEEN   TYPE      REASON              OBJECT                                 MESSAGE
+2m39s       Normal    Pulling             pod/web-deployment-5d8696bcfb-wqkqn    Pulling image "nginx:1.30-alpine"
+2m39s       Normal    Scheduled           pod/web-deployment-5d8696bcfb-wqkqn    Successfully assigned dso202-practical-01/web-deployment-5d8696bcfb-wqkqn to worker-node-2
+2m39s       Normal    ScalingReplicaSet   deployment/web-deployment              Scaled up replica set web-deployment-5d8696bcfb from 0 to 3
+2m39s       Normal    SuccessfulCreate    replicaset/web-deployment-5d8696bcfb   Created pod: web-deployment-5d8696bcfb-lrkck
+2m39s       Normal    SuccessfulCreate    replicaset/web-deployment-5d8696bcfb   Created pod: web-deployment-5d8696bcfb-pdhpc
+2m39s       Normal    Scheduled           pod/web-declarative                    Successfully assigned dso202-practical-01/web-declarative to worker-node-2
+2m39s       Normal    Pulling             pod/web-declarative                    Pulling image "nginx:1.30-alpine"
+2m39s       Normal    SuccessfulCreate    replicaset/web-deployment-5d8696bcfb   Created pod: web-deployment-5d8696bcfb-wqkqn
+2m39s       Normal    Pulling             pod/client-pod                         Pulling image "busybox:1.37"
+2m39s       Normal    Scheduled           pod/web-deployment-5d8696bcfb-lrkck    Successfully assigned dso202-practical-01/web-deployment-5d8696bcfb-lrkck to worker-node-1
+2m39s       Normal    Pulling             pod/web-deployment-5d8696bcfb-pdhpc    Pulling image "nginx:1.30-alpine"
+2m39s       Normal    Pulling             pod/web-deployment-5d8696bcfb-lrkck    Pulling image "nginx:1.30-alpine"
+2m39s       Normal    Scheduled           pod/web-deployment-5d8696bcfb-pdhpc    Successfully assigned dso202-practical-01/web-deployment-5d8696bcfb-pdhpc to worker-node-1
+2m39s       Normal    Scheduled           pod/client-pod                         Successfully assigned dso202-practical-01/client-pod to worker-node-2
+2m25s       Normal    Created             pod/web-deployment-5d8696bcfb-pdhpc    Container created
+2m25s       Normal    Pulled              pod/web-deployment-5d8696bcfb-pdhpc    Successfully pulled image "nginx:1.30-alpine" in 13.847s (13.847s including waiting). Image size: 25980582 bytes.
+2m25s       Normal    Started             pod/web-deployment-5d8696bcfb-pdhpc    Container started
+2m23s       Normal    Started             pod/web-deployment-5d8696bcfb-lrkck    Container started
+2m23s       Normal    Created             pod/web-deployment-5d8696bcfb-lrkck    Container created
+2m23s       Normal    Pulled              pod/web-deployment-5d8696bcfb-lrkck    Successfully pulled image "nginx:1.30-alpine" in 2.057s (15.884s including waiting). Image size: 25980582 bytes.
+2m19s       Normal    Started             pod/web-declarative                    Container started
+2m19s       Normal    Created             pod/web-declarative                    Container created
+2m19s       Normal    Pulled              pod/web-declarative                    Successfully pulled image "nginx:1.30-alpine" in 20.107s (20.107s including waiting). Image size: 25980582 bytes.
+2m16s       Normal    Pulled              pod/web-deployment-5d8696bcfb-wqkqn    Successfully pulled image "nginx:1.30-alpine" in 3.13s (23.234s including waiting). Image size: 25980582 bytes.
+2m16s       Normal    Created             pod/web-deployment-5d8696bcfb-wqkqn    Container created
+2m15s       Normal    Started             pod/web-deployment-5d8696bcfb-wqkqn    Container started
+2m7s        Normal    Started             pod/client-pod                         Container started
+2m7s        Normal    Created             pod/client-pod                         Container created
+2m7s        Normal    Pulled              pod/client-pod                         Successfully pulled image "busybox:1.37" in 8.372s (31.565s including waiting). Image size: 1911395 bytes.
+25s         Warning   Unhealthy           pod/web-deployment-5d8696bcfb-lrkck    Readiness probe failed: HTTP probe failed with statuscode: 404

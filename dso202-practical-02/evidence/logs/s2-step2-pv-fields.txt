@@ -1,0 +1,6 @@
+$ kubectl get pv pv-web-static -o jsonpath='{.spec.hostPath.path}{"\n"}'
+/mnt/dso202-static/pv-web-static
+
+$ kubectl get pv pv-web-static -o jsonpath='{.spec.nodeAffinity}{"\n"}'
+{"required":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"dso202/node-index","operator":"In","values":["1"]}]}]}}
+

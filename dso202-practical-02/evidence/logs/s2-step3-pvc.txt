@@ -1,0 +1,7 @@
+$ kubectl apply -f manifests/04-pvc-static.yaml
+persistentvolumeclaim/pvc-web-static created
+
+$ kubectl get pvc
+NAME             STATUS   VOLUME          CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pvc-web-static   Bound    pv-web-static   1Gi        RWO            manual         <unset>                 0s
+

@@ -1,0 +1,16 @@
+$ kubectl exec dynamic-writer -- cat /data/ledger.txt
+2026-11-10T15:47:30Z start pod=dynamic-writer node=worker-node-2
+
+$ kubectl delete pod dynamic-writer
+pod "dynamic-writer" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc dynamic-data
+persistentvolumeclaim "dynamic-data" deleted from dso202-practical-02 namespace
+
+$ sleep 5; kubectl get pv
+NAME            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pv-web-static   1Gi        RWO            Retain           Bound    dso202-practical-02/pvc-web-static   manual         <unset>                          48s
+
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+
+

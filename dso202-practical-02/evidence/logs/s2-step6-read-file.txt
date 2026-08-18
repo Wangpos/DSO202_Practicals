@@ -1,0 +1,6 @@
+$ kubectl exec static-writer -- cat /data/ledger.txt
+2026-11-10T15:46:32Z start pod=static-writer node=worker-node-1
+
+$ cat /tmp/dso202-p2-storage/pv-web-static/ledger.txt
+2026-11-10T15:46:32Z start pod=static-writer node=worker-node-1
+

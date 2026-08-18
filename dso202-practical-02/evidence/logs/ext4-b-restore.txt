@@ -1,0 +1,47 @@
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT count(*) FROM tasks;'
+ERROR:  relation "tasks" does not exist
+LINE 1: SELECT count(*) FROM tasks;
+                             ^
+command terminated with exit code 1
+
+$ kubectl -n dso202-practical-02 exec -i postgres-0 -- psql -U taskuser -d tasktracker < evidence/logs/tasktracker-dump.sql
+SET
+SET
+SET
+SET
+SET
+SET
+ set_config 
+------------
+ 
+(1 row)
+
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE SEQUENCE
+ALTER SEQUENCE
+ALTER SEQUENCE
+ALTER TABLE
+COPY 3
+ setval 
+--------
+      3
+(1 row)
+
+ALTER TABLE
+
+$ kubectl -n dso202-practical-02 exec postgres-0 -- psql -U taskuser -d tasktracker -c 'SELECT id, title, done FROM tasks ORDER BY id;'
+ id |        title         | done 
+----+----------------------+------
+  1 | Complete Practical 2 | f
+  2 | Read Unit II notes   | f
+  3 | Draft the report     | f
+(3 rows)
+
+

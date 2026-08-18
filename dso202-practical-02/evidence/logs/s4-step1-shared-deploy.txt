@@ -1,0 +1,16 @@
+$ kubectl apply -f manifests/08-deployment-shared-pvc.yaml
+persistentvolumeclaim/shared-data created
+deployment.apps/shared-writer created
+
+$ kubectl rollout status deployment/shared-writer --timeout=180s
+Waiting for deployment "shared-writer" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "shared-writer" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "shared-writer" rollout to finish: 2 of 3 updated replicas are available...
+deployment "shared-writer" successfully rolled out
+
+$ kubectl get pods -l app=shared-writer -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+NAME                             NODE
+shared-writer-6f4b987c7b-87xcs   worker-node-2
+shared-writer-6f4b987c7b-hv9wg   worker-node-2
+shared-writer-6f4b987c7b-t55bz   worker-node-2
+

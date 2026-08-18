@@ -1,0 +1,52 @@
+$ kubectl get pods -l app=web -o wide
+NAME                              READY   STATUS    RESTARTS   AGE   IP           NODE            NOMINATED NODE   READINESS GATES
+web-declarative                   1/1     Running   0          2m    10.244.2.2   worker-node-2   <none>           <none>
+web-deployment-5d8696bcfb-lrkck   1/1     Running   0          2m    10.244.1.3   worker-node-1   <none>           <none>
+web-deployment-5d8696bcfb-pdhpc   1/1     Running   0          2m    10.244.1.2   worker-node-1   <none>           <none>
+web-deployment-5d8696bcfb-wqkqn   1/1     Running   0          2m    10.244.2.3   worker-node-2   <none>           <none>
+
+$ kubectl get endpointslice -l kubernetes.io/service-name=web-clusterip -o wide
+NAME                  ADDRESSTYPE   PORTS   ENDPOINTS                                      AGE
+web-clusterip-hrr9v   IPv4          80      10.244.1.2,10.244.1.3,10.244.2.2 + 1 more...   2m
+
+# Step 6: write a distinct page into every web Pod, then send 12 requests
+$ for i in $(seq 1 12); do kubectl exec client-pod -- wget -qO- http://web-clusterip; done | sort | uniq -c
+   3 served by web-declarative
+   5 served by web-deployment-5d8696bcfb-lrkck
+   2 served by web-deployment-5d8696bcfb-pdhpc
+   2 served by web-deployment-5d8696bcfb-wqkqn
+
+# Step 7: break readiness on one Deployment Pod
+$ target=web-deployment-5d8696bcfb-lrkck
+$ kubectl exec "$target" -- rm -f /usr/share/nginx/html/index.html; sleep 15
+$ kubectl get pod "$target"
+NAME                              READY   STATUS    RESTARTS   AGE
+web-deployment-5d8696bcfb-lrkck   0/1     Running   0          2m17s
+
+$ kubectl get endpointslice -l kubernetes.io/service-name=web-clusterip -o wide
+NAME                  ADDRESSTYPE   PORTS   ENDPOINTS                                      AGE
+web-clusterip-hrr9v   IPv4          80      10.244.1.2,10.244.1.3,10.244.2.2 + 1 more...   2m17s
+
+$ kubectl get endpointslice -l kubernetes.io/service-name=web-clusterip -o jsonpath=<address : ready>
+10.244.1.2  ready=true  pod=web-deployment-5d8696bcfb-pdhpc
+10.244.1.3  ready=false  pod=web-deployment-5d8696bcfb-lrkck
+10.244.2.2  ready=true  pod=web-declarative
+10.244.2.3  ready=true  pod=web-deployment-5d8696bcfb-wqkqn
+
+$ kubectl describe pod "$target" | grep -A1 Unhealthy
+  Warning  Unhealthy  3s (x4 over 13s)  kubelet            spec.containers{web}: Readiness probe failed: HTTP probe failed with statuscode: 404
+
+$ (12 requests again)
+   2 served by web-declarative
+   3 served by web-deployment-5d8696bcfb-pdhpc
+   7 served by web-deployment-5d8696bcfb-wqkqn
+
+# Restore the page
+$ kubectl exec "$target" -- sh -c 'echo "served by $HOSTNAME" > /usr/share/nginx/html/index.html'; sleep 10
+$ kubectl get pod "$target"
+NAME                              READY   STATUS    RESTARTS   AGE
+web-deployment-5d8696bcfb-lrkck   1/1     Running   0          2m28s
+10.244.1.2  ready=true  pod=web-deployment-5d8696bcfb-pdhpc
+10.244.1.3  ready=true  pod=web-deployment-5d8696bcfb-lrkck
+10.244.2.2  ready=true  pod=web-declarative
+10.244.2.3  ready=true  pod=web-deployment-5d8696bcfb-wqkqn

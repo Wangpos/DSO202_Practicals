@@ -1,0 +1,8 @@
+$ kubectl exec deploy/shared-writer -- cat /data/visitors.log
+2026-11-10T15:47:56Z pod=shared-writer-6f4b987c7b-t55bz node=worker-node-2
+2026-11-10T15:47:56Z pod=shared-writer-6f4b987c7b-hv9wg node=worker-node-2
+2026-11-10T15:47:57Z pod=shared-writer-6f4b987c7b-87xcs node=worker-node-2
+2026-11-10T15:47:58Z pod=shared-writer-6f4b987c7b-b8lxd node=worker-node-2
+2026-11-10T15:47:58Z pod=shared-writer-6f4b987c7b-nv7lv node=worker-node-2
+2026-11-10T15:47:58Z pod=shared-writer-6f4b987c7b-9jmh8 node=worker-node-2
+

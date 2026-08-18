@@ -1,0 +1,11 @@
+$ kubectl scale statefulset webnote-ext1 --replicas=1
+statefulset.apps/webnote-ext1 scaled
+
+$ sleep 20; kubectl get pods -l app=webnote-ext1
+NAME             READY   STATUS    RESTARTS   AGE
+webnote-ext1-0   1/1     Running   0          32s
+
+$ kubectl get pvc -l app=webnote-ext1
+NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+content-webnote-ext1-0   Bound    pvc-116a8c38-7946-476c-a83c-f4f05833e56b   100Mi      RWO            standard       <unset>                 32s
+

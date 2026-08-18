@@ -1,0 +1,12 @@
+$ kubectl scale statefulset webnote --replicas=3
+statefulset.apps/webnote scaled
+
+$ kubectl wait --for=condition=Ready pod/webnote-2 --timeout=180s
+pod/webnote-2 condition met
+
+$ kubectl exec client -- wget -qO- http://webnote-2.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-2</h2>
+created: 2026-11-10T15:50:23Z on worker-node-1
+started: 2026-11-10T15:50:23Z on worker-node-1
+started: 2026-11-10T15:51:55Z on worker-node-1
+

@@ -1,0 +1,7 @@
+$ kubectl get pod dynamic-writer -o wide
+NAME             READY   STATUS    RESTARTS   AGE   IP           NODE            NOMINATED NODE   READINESS GATES
+dynamic-writer   1/1     Running   0          18s   10.244.2.3   worker-node-2   <none>           <none>
+
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+pvc-d7161356-0b56-4fa2-8878-980a2aa05a00_dso202-practical-02_dynamic-data
+

@@ -1,0 +1,10 @@
+$ kubectl apply -f manifests/13-service-postgres.yaml
+service/postgres-headless created
+service/postgres created
+
+$ kubectl get services
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+postgres            ClusterIP   10.96.191.169   <none>        5432/TCP   0s
+postgres-headless   ClusterIP   None            <none>        5432/TCP   0s
+webnote             ClusterIP   None            <none>        80/TCP     6m25s
+

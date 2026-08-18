@@ -1,0 +1,7 @@
+$ kubectl apply -f manifests/06-pvc-dynamic.yaml
+persistentvolumeclaim/dynamic-data created
+
+$ kubectl get pvc dynamic-data
+NAME           STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+dynamic-data   Pending                                      standard       <unset>                 1s
+

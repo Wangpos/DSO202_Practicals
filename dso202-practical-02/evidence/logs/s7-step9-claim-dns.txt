@@ -1,0 +1,26 @@
+$ kubectl get pvc data-postgres-0
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS    VOLUMEATTRIBUTESCLASS   AGE
+data-postgres-0   Bound    pvc-2b1ac828-e445-4e0f-aed8-47baf947efea   2Gi        RWO            dso202-retain   <unset>                 5m2s
+
+$ kubectl get pod postgres-0
+NAME         READY   STATUS    RESTARTS   AGE
+postgres-0   1/1     Running   0          12s
+
+$ kubectl exec client -- nslookup postgres.dso202-practical-02.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	postgres.dso202-practical-02.svc.cluster.local
+Address: 10.96.191.169
+
+
+
+$ kubectl exec client -- nslookup postgres-0.postgres-headless.dso202-practical-02.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	postgres-0.postgres-headless.dso202-practical-02.svc.cluster.local
+Address: 10.244.2.22
+
+

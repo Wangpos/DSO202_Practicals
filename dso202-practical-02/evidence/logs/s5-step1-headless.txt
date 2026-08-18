@@ -1,0 +1,7 @@
+$ kubectl apply -f manifests/09-service-webnote.yaml
+service/webnote created
+
+$ kubectl get service webnote
+NAME      TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+webnote   ClusterIP   None         <none>        80/TCP    0s
+

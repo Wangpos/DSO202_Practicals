@@ -1,0 +1,7 @@
+$ kubectl delete statefulset webnote-ext3
+statefulset.apps "webnote-ext3" deleted from dso202-practical-02 namespace
+
+$ kubectl delete pvc -l app=webnote-ext3
+persistentvolumeclaim "content-webnote-ext3-2" deleted from dso202-practical-02 namespace
+persistentvolumeclaim "content-webnote-ext3-3" deleted from dso202-practical-02 namespace
+

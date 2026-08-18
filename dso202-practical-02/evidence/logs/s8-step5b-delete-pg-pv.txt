@@ -1,0 +1,9 @@
+$ kubectl delete pv pvc-2b1ac828-e445-4e0f-aed8-47baf947efea
+persistentvolume "pvc-2b1ac828-e445-4e0f-aed8-47baf947efea" deleted
+
+$ kubectl get pv
+No resources found
+
+$ docker exec dso202-p2-worker2 ls /var/local-path-provisioner
+pvc-2b1ac828-e445-4e0f-aed8-47baf947efea_dso202-practical-02_data-postgres-0
+

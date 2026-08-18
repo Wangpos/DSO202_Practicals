@@ -1,0 +1,13 @@
+$ kubectl apply -f manifests/00-namespace.yaml
+namespace/dso202-practical-02 created
+
+$ kubectl config set-context --current --namespace=dso202-practical-02
+Context "kind-dso202-p2" modified.
+
+$ kubectl apply -f manifests/01-quota-and-limits.yaml
+resourcequota/dso202-p2-quota created
+limitrange/dso202-p2-limits created
+
+$ kubectl apply -f manifests/02-storageclass-retain.yaml
+storageclass.storage.k8s.io/dso202-retain created
+

@@ -1,0 +1,14 @@
+$ kubectl exec webnote-0 -- sh -c 'echo "note added by hand in Stage 5" >> /usr/share/nginx/html/index.html'
+Defaulted container "nginx" out of: nginx, seed-content (init)
+
+$ kubectl exec client -- wget -qO- http://webnote-0.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-0</h2>
+created: 2026-11-10T15:48:56Z on worker-node-2
+started: 2026-11-10T15:48:56Z on worker-node-2
+note added by hand in Stage 5
+
+$ kubectl exec client -- wget -qO- http://webnote-1.webnote.dso202-practical-02.svc.cluster.local
+<h2>webnote-1</h2>
+created: 2026-11-10T15:49:32Z on worker-node-1
+started: 2026-11-10T15:49:32Z on worker-node-1
+

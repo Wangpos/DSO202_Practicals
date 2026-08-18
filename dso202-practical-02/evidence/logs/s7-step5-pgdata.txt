@@ -1,0 +1,4 @@
+$ kubectl exec postgres-0 -- sh -c 'echo "$PGDATA"; ls /var/lib/postgresql'
+/var/lib/postgresql/18/docker
+18
+
